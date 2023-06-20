@@ -1,0 +1,6 @@
+venv/*
+docker
+__pycache__
+.vscode
+.env
+.DS_Store
