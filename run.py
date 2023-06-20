@@ -2,7 +2,7 @@
 from aiogram import Dispatcher
 from bot.database.database import create_db
 from bot.config import TOKEN, ADMIN_ID
-from aiogram import executor
+# from aiogram import executor
 from bot.loader import dp, bot
 # from bot.middleware.language_middleware import setup_middleware
 # from bot.middleware.photo_middleware import AlbumMiddleware
@@ -19,4 +19,4 @@ if __name__ == "__main__":
     from bot.handlers.user_handlers import dp
     from bot.handlers.admin_handlers import dp
     # dp.middleware.setup(AlbumMiddleware())
-    executor.start_polling(dp, skip_updates=True, on_startup=on_startup, on_shutdown=on_shutdown)
+    dp.start_polling(bot,skip_updates=True, on_startup=on_startup, on_shutdown=on_shutdown)

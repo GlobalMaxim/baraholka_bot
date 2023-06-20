@@ -1,10 +1,9 @@
 import asyncio
 from datetime import datetime
 from aiogram import Dispatcher
-from aiogram.dispatcher import FSMContext
-from aiogram.types import Message, CallbackQuery, photo_size, ContentTypes, ContentType, ReplyKeyboardRemove, InputMediaPhoto
-from aiogram.dispatcher.filters import CommandStart, Text, MediaGroupFilter
-# from aiogram.dispatcher.filters import F
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, CallbackQuery, photo_size, ContentType, ReplyKeyboardRemove, InputMediaPhoto
+from aiogram.filters import CommandStart, Text, MediaGroupFilter
 from typing import List
 import json 
 from aiogram_media_group import media_group_handler
@@ -56,7 +55,7 @@ async def __set_language(call: CallbackQuery, state: FSMContext):
             await RegistrationStates.NUMBER.set()
     await call.answer()
 
-@dp.message_handler(content_types=ContentTypes.CONTACT | ContentTypes.TEXT, state=RegistrationStates.NUMBER)
+@dp.message_handler(content_types=ContentType.CONTACT | ContentType.TEXT, state=RegistrationStates.NUMBER)
 async def __set_number(msg: Message, state: FSMContext):
     if 'contact' in msg:
         phone_number = msg['contact']['phone_number']
@@ -139,7 +138,7 @@ async def __select_price(msg: Message, state: FSMContext):
     await CreateArticleStates.PHOTO.set()
     await state.update_data(article=json.dumps(jsonpickle.encode(article, unpicklable=False)))
 
-@dp.message_handler(content_types=ContentTypes.ANY, state=CreateArticleStates.PHOTO)
+@dp.message_handler(content_types=ContentType.ANY, state=CreateArticleStates.PHOTO)
 @media_group_handler
 async def album_handler(messages: List[Message]):
     await messages[-1].reply_media_group(
@@ -155,7 +154,7 @@ async def album_handler(messages: List[Message]):
 
 @dp.message_handler(Text(equals=[_("⬅️ Назад")]), state=CreateArticleStates.NICKNAME)
 # @dp.message_handler(content_types=ContentTypes.ANY, state=CreateArticleStates.PHOTO)
-@dp.message_handler(MediaGroupFilter(is_media_group=True),content_types=ContentType.PHOTO, state=CreateArticleStates.PHOTO)
+# @dp.message_handler(MediaGroupFilter(is_media_group=True),content_types=ContentType.PHOTO, state=CreateArticleStates.PHOTO)
 # @dp.message_handler(content_types=['photo'])
 @media_group_handler
 async def __select_photo(msg: Message,state: FSMContext):

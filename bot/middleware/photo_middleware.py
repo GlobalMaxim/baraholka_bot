@@ -1,7 +1,6 @@
 import asyncio
 
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.dispatcher.handler import CancelHandler
 from aiogram.dispatcher.middlewares import BaseMiddleware
 
 from asyncio import sleep

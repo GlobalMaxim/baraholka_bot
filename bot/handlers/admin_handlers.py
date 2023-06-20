@@ -1,8 +1,8 @@
 from datetime import datetime
-from aiogram import Dispatcher
-from aiogram.dispatcher import FSMContext
+from aiogram import Dispatcher, F
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery, photo_size, ContentTypes, ContentType, ReplyKeyboardRemove, InputMediaPhoto, KeyboardButton, ReplyKeyboardMarkup
-from aiogram.dispatcher.filters import CommandStart, Text, MediaGroupFilter, Filter
+from aiogram.filters import CommandStart, Text, MediaGroupFilter, Filter
 from typing import List
 import json
 
