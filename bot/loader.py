@@ -15,7 +15,7 @@ i18n = setup_middleware(dp)
 
 global _
 # Создадим псевдоним для метода gettext
-_ = i18n.gettext
+_ = i18n.lazy_gettext
 # Настроим i18n middleware для работы с многоязычностью
 
 # register_user_handlers(dp)

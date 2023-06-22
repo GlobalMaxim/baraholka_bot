@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime
 from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
-from aiogram.types import Message, CallbackQuery, photo_size, ContentTypes, ContentType, ReplyKeyboardRemove, InputMediaPhoto
+from aiogram.types import Message, CallbackQuery,BotCommand, photo_size, ContentTypes, ContentType, ReplyKeyboardRemove, InputMediaPhoto, MediaGroup
 from aiogram.dispatcher.filters import CommandStart, Text, MediaGroupFilter
 # from aiogram.dispatcher.filters import F
 from typing import List
@@ -11,19 +11,27 @@ from aiogram_media_group import media_group_handler
 import re
 import pickle
 import jsonpickle
+from geopy.geocoders import Nominatim
 
-from bot.keyboards.user_keyboards import choose_language, send_tel_number_markup, user_main_menu_markup, select_article_type_markup, create_article_default_markup, accept_create_article, choose_new_language
-from bot.keyboards.admin_keyboard import admin_main_menu_markup
+from bot.keyboards.user_keyboards import choose_language, get_tel_number, user_main_menu_markup, select_article_type_markup, create_article_default_markup, accept_create_article, choose_new_language, geoposition_markup
+from bot.keyboards.admin_keyboard import admin_main_menu_markup, get_lang_markup
 from bot.states.states import CreateArticleStates, RegistrationStates
 from bot.database.database import Article, DBCommands, User, DuplicateArticleException
 from bot.loader import dp, bot, _
 from bot.config import ADMIN_ID
-from bot.utils.utils import get_sample_from_article, send_article_to_chanel
+from bot.utils.utils import get_sample_from_article, send_article_to_chanel, check_article_for_errors, redis_client
+
 
 
 db = DBCommands()
 
+async def register_commands():
+    await bot.set_my_commands([
+        BotCommand('restart', 'Рестарт')
+    ])
+
 @dp.message_handler(commands="start")
+@dp.message_handler(commands="restart")
 async def __start(msg: Message) -> None:
     user_id = msg.from_user.id
     user_name = msg.from_user.full_name
@@ -40,19 +48,17 @@ async def __set_language(call: CallbackQuery, state: FSMContext):
     user: User  = await db.set_language(lang)
     data = await state.get_data()
     is_edit = data.get('change_language')
+    await call.message.answer(_("Ваш язык был изменен", locale=lang), reply_markup= get_lang_markup(lang, call))
     if is_edit:
-        reply_markup = admin_main_menu_markup if str(call.from_user.id) in ADMIN_ID else user_main_menu_markup
-    else:
-        reply_markup = None
-    await call.message.answer(_("Ваш язык был изменен", locale=lang), reply_markup=reply_markup)
+        await bot.send_message(call.from_user.id, _("Выберите следущее действие"), reply_markup= get_lang_markup(lang, call))
     await state.reset_data()
     if not is_edit:
         if user.mobile:
         # После того, как мы поменяли язык, в этой функции все еще указан старый, поэтому передаем locale=lang
             
-            await bot.send_message(call.from_user.id, _("Добро пожаловать в главное меню!"), reply_markup=admin_main_menu_markup if str(call.from_user.id) in ADMIN_ID else user_main_menu_markup)
+            await bot.send_message(call.from_user.id, _("Добро пожаловать в главное меню!", locale=lang), reply_markup= get_lang_markup(lang, call))
         else:
-            await bot.send_message(call.from_user.id, _('Отправьте свой номер телефона'), reply_markup=send_tel_number_markup)
+            await bot.send_message(call.from_user.id, _('Отправьте свой номер телефона', locale=lang), reply_markup=get_tel_number(lang))
             await RegistrationStates.NUMBER.set()
     await call.answer()
 
@@ -86,7 +92,7 @@ async def main_menu(msg: Message, state: FSMContext):
     await state.reset_data()
 
 @dp.message_handler(Text(equals=[_("⬅️ Назад")]), state=CreateArticleStates.TITLE)
-@dp.message_handler(Text(equals=[_("Создать объявление")]))
+@dp.message_handler(Text(equals=[_("Создать объявление 🆕")]))
 async def __create_article(msg: Message, state: FSMContext):
     await bot.send_message(msg.from_user.id, _("Выберите категрию"), reply_markup=select_article_type_markup)
     await CreateArticleStates.CATEGORY.set()
@@ -96,7 +102,7 @@ async def __create_article(msg: Message, state: FSMContext):
 async def __select_category(msg: Message, state: FSMContext):
     article = Article()
     article.user_id = msg.from_user.id
-    article.type = msg.text.replace(_("⬅️ Назад"), "")
+    article.type = msg.text.replace(str(_("⬅️ Назад")), "")
     await bot.send_message(msg.from_user.id, _("Введите название товара"), reply_markup=create_article_default_markup)
     await CreateArticleStates.TITLE.set()
     # print(article)
@@ -109,7 +115,8 @@ async def __select_title(msg: Message, state: FSMContext):
     # print(type(jsonpickle.decode(data['article'])))
     # print(json.loads(jsonpickle.decode(data['article'])))
     article: Article = Article(**json.loads(jsonpickle.decode(data['article']))['__values__'])
-    article.title = msg.text.replace(_("Пропустить ➡️"), "").replace(_("⬅️ Назад"), "")
+    skip = _("Пропустить ➡️")
+    article.title = msg.text.replace(str(_("Пропустить ➡️")), "").replace(str(_("⬅️ Назад")), "")
     await bot.send_message(msg.from_user.id, _("Введите описание товара"), reply_markup=create_article_default_markup)
     await CreateArticleStates.DESCRIPTION.set()
     await state.update_data(article=json.dumps(jsonpickle.encode(article, unpicklable=False)))
@@ -119,8 +126,8 @@ async def __select_title(msg: Message, state: FSMContext):
 async def __select_description(msg: Message, state: FSMContext):
     data = await state.get_data()
     article: Article = Article(**json.loads(jsonpickle.decode(data['article']))['__values__'])
-    article.description = msg.text.replace(_("Пропустить ➡️"), "").replace(_("⬅️ Назад"), "")
-    if article.type == _("❗️ Продам"):
+    article.description = msg.text.replace(str(_("Пропустить ➡️")), "").replace(str(_("⬅️ Назад")), "")
+    if article.type == str(_("❗️ Продам")):
         await bot.send_message(msg.from_user.id, _("Введите цену товара"), reply_markup=create_article_default_markup)
         await CreateArticleStates.PRICE.set()
     else:
@@ -134,52 +141,37 @@ async def __select_description(msg: Message, state: FSMContext):
 async def __select_price(msg: Message, state: FSMContext):
     data = await state.get_data()
     article: Article = Article(**json.loads(jsonpickle.decode(data['article']))['__values__'])
-    article.price = msg.text.replace(_("Пропустить ➡️"), "").replace(_("⬅️ Назад"), "")
+    article.price = msg.text.replace(str(_("Пропустить ➡️")), "").replace(str(_("⬅️ Назад")), "")
     await bot.send_message(msg.from_user.id, _("Добавьте фото"), reply_markup=create_article_default_markup)
     await CreateArticleStates.PHOTO.set()
     await state.update_data(article=json.dumps(jsonpickle.encode(article, unpicklable=False)))
 
-@dp.message_handler(content_types=ContentTypes.ANY, state=CreateArticleStates.PHOTO)
-@media_group_handler
-async def album_handler(messages: List[Message]):
-    await messages[-1].reply_media_group(
-        [
-            InputMediaPhoto(
-                media=m.photo[-1].file_id,
-                caption=m.caption,
-                caption_entities=m.caption_entities,
-            )
-            for m in messages
-        ]
-    )
-
 @dp.message_handler(Text(equals=[_("⬅️ Назад")]), state=CreateArticleStates.NICKNAME)
-# @dp.message_handler(content_types=ContentTypes.ANY, state=CreateArticleStates.PHOTO)
-@dp.message_handler(MediaGroupFilter(is_media_group=True),content_types=ContentType.PHOTO, state=CreateArticleStates.PHOTO)
-# @dp.message_handler(content_types=['photo'])
-@media_group_handler
-async def __select_photo(msg: Message,state: FSMContext):
-    # print(media_group_id)
+@dp.message_handler(content_types=ContentTypes.ANY, state=CreateArticleStates.PHOTO)
+@dp.message_handler(is_media_group=True, content_types=ContentType.ANY, state=CreateArticleStates.PHOTO)
+async def __select_photo(msg: Message, state: FSMContext, album: List[Message] = None):
     images_list = []
-    # print(message)
     # print(msg)
-    # if album:
-    #     if album.photo:
-    #         file_id = obj.photo[-1].file_id
-    #         images_list.append(file_id)
-    #     else:
-    #         for obj in album:
-    #             if obj.photo:
-    #                 file_id = obj.photo[-1].file_id
-    #                 images_list.append(file_id)
-    #     user_id = album[0].from_user.id
-    if msg.photo:
+    if album:
+        for obj in album:
+            if obj.photo:
+                file_id = obj.photo[-1].file_id
+            else:
+                file_id = obj[obj.content_type].file_id
+            user_id = obj.from_user.id
+            try:
+                # We can also add a caption to each file by specifying `"caption": "text"`
+                images_list.append(file_id)
+            except ValueError:
+                return await msg.answer("This type of album is not supported by aiogram.")
+        user_id = album[0].from_user.id
+    elif msg.photo:
         user_id = msg.from_user.id
         file_id = msg.photo[-1].file_id
         images_list.append(file_id)
-    # else: 
-    #     return
-    print(images_list)
+    else:
+        user_id = msg.from_user.id
+        pass
     images = {'images': images_list}
     data = await state.get_data()
     article: Article = Article(**json.loads(jsonpickle.decode(data['article']))['__values__'])
@@ -193,7 +185,7 @@ async def __select_photo(msg: Message,state: FSMContext):
 async def __select_location(msg: Message, state: FSMContext):
     data = await state.get_data()
     article: Article = Article(**json.loads(jsonpickle.decode(data['article']))['__values__'])
-    article.location = msg.text.replace(_("Пропустить ➡️"), "").replace(_("⬅️ Назад"), "")
+    article.location = msg.text.replace(str(_("Пропустить ➡️")), "").replace(str(_("⬅️ Назад")), "")
     username = msg.from_user.username
     text = _("Введите логин телеграм (начинается с @).\nНажмите 'Пропустить', что б автоматически указать логин вашего профиля")
     await bot.send_message(msg.from_user.id, text, reply_markup=create_article_default_markup)
@@ -205,7 +197,7 @@ async def __select_location(msg: Message, state: FSMContext):
 async def __select_nickname(msg: Message, state: FSMContext):
     data = await state.get_data()
     article: Article = Article(**json.loads(jsonpickle.decode(data['article']))['__values__'])
-    if msg.text not in(_("Пропустить ➡️"), _("⬅️ Назад")) and msg.text.startswith('@'):
+    if msg.text not in[str(_("Пропустить ➡️")), str(_("⬅️ Назад"))] and msg.text.startswith('@'):
         article.username = msg.text
     else:
         article.username = f"@{msg.from_user.username}"
@@ -220,7 +212,7 @@ async def __select_nickname(msg: Message, state: FSMContext):
 async def __select_phone(msg: Message, state: FSMContext):
     data = await state.get_data()
     article: Article = Article(**json.loads(jsonpickle.decode(data['article']))['__values__'])
-    if msg.text not in(_("Пропустить ➡️"), _("⬅️ Назад")) and msg.text.startswith('+'):
+    if msg.text not in[str(_("Пропустить ➡️")), str(_("⬅️ Назад"))] and msg.text.startswith('+'):
         article.mobile_number = msg.text
     await state.update_data(article=json.dumps(jsonpickle.encode(article, unpicklable=False)))
     await bot.send_message(msg.from_user.id, _("Готово! Вы можете посмотреть объявление:"), reply_markup=ReplyKeyboardRemove())
@@ -238,9 +230,9 @@ async def __select_phone(msg: Message, state: FSMContext):
 async def __accept_article(msg: Message, state: FSMContext):
     data = await state.get_data()
     article: Article = Article(**json.loads(jsonpickle.decode(data['article']))['__values__'])
-    if msg.text == _("Да"):
+    if msg.text == str(_("Да")):
         article.created_at = datetime.now()
-        is_duplicate = await db.check_article_duplicate(article)
+        # is_duplicate = await db.check_article_duplicate(article)
         if str(msg.from_user.id) in ADMIN_ID:
             article.is_approved=True
             article.is_reviewed=True
@@ -249,20 +241,47 @@ async def __accept_article(msg: Message, state: FSMContext):
             await send_article_to_chanel(article)
             message = _("Ваш пост опубликован в канале")
             markup = admin_main_menu_markup
-        elif is_duplicate and str(msg.from_user.id) not in ADMIN_ID:
-            message = _("Публикация одинаковых постов запрещена.\nПопробуйте по-другому 🤓")
-            markup = user_main_menu_markup
-        else:
-            article = await article.create()   
-            message = _("Ваш пост отправлен на модерацию.\nКак только он будет проверен Администратором, вы получите уведомление")
-            markup = user_main_menu_markup
-        await bot.send_message(msg.from_user.id, message, reply_markup=markup)
+            await bot.send_message(msg.from_user.id, message, reply_markup=markup)
+        elif str(msg.from_user.id) not in ADMIN_ID:
+            error_text = await check_article_for_errors(article)
+            if error_text:
+                message = error_text
+                markup = user_main_menu_markup
+                await bot.send_message(msg.from_user.id, message, reply_markup=markup)
+            else:
+                redis = redis_client.get('work_mode')
+                if redis:
+                    redis = redis.decode("utf-8")
+                
+                if redis and redis == 'auto':
+                    article.is_approved = True
+                    article.is_reviewed = True
+                    article.reviewed_at = datetime.now()
+                    article = await article.create()   
+                    mess = await send_article_to_chanel(article)
+                    message = _("Ваш пост опубликован в канале")
+                    markup = admin_main_menu_markup
+                    user_id = article.user_id
+                    if isinstance(mess, list):
+                        sender_chat_id = mess[0].sender_chat.id
+                        mess_id = mess[0].message_id
+                    else:
+                        sender_chat_id = mess.sender_chat.id
+                        mess_id = mess.message_id
+                    await bot.send_message(msg.from_user.id, message, reply_markup=markup)
+                    await bot.forward_message(user_id, sender_chat_id, mess_id)
+                else:
+                    article = await article.create()  
+                    message = _("Ваш пост отправлен на модерацию.\nКак только он будет проверен Администратором, вы получите уведомление")
+                    markup = user_main_menu_markup
+                    await bot.send_message(msg.from_user.id, message, reply_markup=markup)
+        
     elif msg.text == _("Нет"):
         await bot.send_message(msg.from_user.id, _("Создание поста отменено"), reply_markup=admin_main_menu_markup if str(msg.from_user.id) in ADMIN_ID else user_main_menu_markup)
     await state.reset_state()
     await state.reset_data()
 
-@dp.message_handler(Text(equals=[_("Мои объявления")]))
+@dp.message_handler(Text(equals=[_("Мои объявления 🖼")]))
 async def __my_articles(msg: Message):
     articles: List[Article] | None = await db.get_user_articles(msg.from_user.id)
     articles.sort(key=lambda x: x.id)
@@ -280,7 +299,7 @@ async def __change_language(msg: Message, state: FSMContext):
 
 @dp.message_handler(Text(equals=[_("Номер телефона")]))
 async def __change_language(msg: Message, state: FSMContext):
-    await bot.send_message(msg.from_user.id, _("Введите номер"), reply_markup=send_tel_number_markup)
+    await bot.send_message(msg.from_user.id, _("Введите номер"), reply_markup=get_tel_number())
     await state.set_data({"change_number":True})
     await RegistrationStates.NUMBER.set()
 

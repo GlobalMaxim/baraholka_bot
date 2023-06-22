@@ -2,7 +2,7 @@ import json
 from aiogram.types import Message, CallbackQuery, photo_size, ContentTypes, ContentType, ReplyKeyboardRemove, InputMediaPhoto
 
 from bot.loader import dp, bot, _
-from bot.database.database import Article
+from bot.database.database import Article, DBCommands
 from bot.config import CHANEL_ID
 import redis
 
@@ -28,20 +28,26 @@ async def send_article_to_chanel(article:Article, channel_id=CHANEL_ID):
     # article_photos = article.photo
     photos = json.loads(article.photo)['images']
     if len(photos) > 0:
-        await bot.send_media_group(channel_id, media=[InputMediaPhoto(m, caption=text if key == 0 else "",  parse_mode="HTML") for key, m in enumerate(photos)])
+        return await bot.send_media_group(channel_id, media=[InputMediaPhoto(m, caption=text if key == 0 else "",  parse_mode="HTML") for key, m in enumerate(photos)])
     else:
-        await bot.send_message(channel_id, text)
+        return await bot.send_message(channel_id, text)
 
 def get_sample_from_article(article: Article):
     text_arr = []
     art_type = ""
-    match article.type:
-        case "❗️ Продам":
-            art_type = article.type + " / zu Verkaufen ❗️"
-        case "❕ Отдам":
-            art_type = article.type + " / zu verschenken ❕"
-        case "❓ Ищу":
-            art_type = article.type + " / zu suchen ❓"
+    if article.type == str(_("❗️ Продам")):
+        art_type = article.type + " / zu Verkaufen ❗️"
+    elif article.type == str(_("❕ Отдам")):
+        art_type = article.type + " / zu verschenken ❕"
+    elif article.type == str(_("❓ Ищу")):
+        art_type = article.type + " / zu suchen ❓"
+    # match article.type:
+    #     case str(_("❗️ Продам")):
+    #         art_type = article.type + " / zu Verkaufen ❗️"
+    #     case str(_("❕ Отдам")):
+    #         art_type = article.type + " / zu verschenken ❕"
+    #     case str(_("❓ Ищу")):
+    #         art_type = article.type + " / zu suchen ❓"
     text_arr.append(f"{art_type}\n")
     if article.title:
         text_arr.append(f"{article.title}\n")
@@ -53,7 +59,7 @@ def get_sample_from_article(article: Article):
         text_arr.append(f"{_('Местоположение: ')}{article.location}\n")
     if article.mobile_number:
         text_arr.append(f"{_('Номер: ')}{article.mobile_number}\n")
-    print(article.username)
+    # print(article.username)
     if article.username and article.username != "@None":
         text_arr.append(article.username)
     text = "\n".join(text_arr)
@@ -78,11 +84,16 @@ def distance(a, b):
         return current_row[n]
 
 async def check_article_for_errors(article: Article):
-    is_duplicate = await db.check_article_duplicate(article)
-    if not article.title:
-        raise EmptyArticleException
+    db = DBCommands()
+    try:
+        await db.check_article_duplicate(article)
+    except:
+        return _("Публикация одинаковых постов запрещена.\nПопробуйте по-другому 🤓")
     
-    words = ['сука', "шлюха", "блят", "пидор", "лох", " бля ", "гандон", "бляд", "ёб", "хуй", "доеб"]
+    if not article.title:
+        return _("Заголовок не может быть пустым, объявление нужно переделать")
+    
+    words = ['сука', "шлюх", "блят", "пидор", "лох", "бля", "гандон", "бляд", "ёб", "хуй", "доеб", "пидр"]
     text = get_sample_from_article(article)
     phrase = text.lower()
 
@@ -131,4 +142,5 @@ async def check_article_for_errors(article: Article):
         for part in range(len(phrase)):
             fragment = phrase[part: part+len(word)]
             if distance(fragment, word) <= len(word)*0.15:
-                raise BadWordsException
+                return _("В статье нельзя использовать маты 👊")
+    return

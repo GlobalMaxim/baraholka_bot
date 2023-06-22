@@ -36,8 +36,16 @@ async def __moderation(msg: Message, state: FSMContext):
             elif msg.text == "👍":
                 article.is_approved = True
                 user_id = article.user_id
-                await send_article_to_chanel(article)
+                mess = await send_article_to_chanel(article)
+                if isinstance(mess, list):
+                    sender_chat_id = mess[0].sender_chat.id
+                    mess_id = mess[0].message_id
+                else:
+                    sender_chat_id = mess.sender_chat.id
+                    mess_id = mess.message_id
+                # print(mess)
                 await bot.send_message(user_id, _("Ваше объявление было опубликовано"))
+                await bot.forward_message(user_id, sender_chat_id, mess_id)
             await db.update_article(article)
 
         articles: List[Article] = await db.get_non_reviewed_articles()
@@ -67,7 +75,7 @@ async def __moderation(msg: Message):
         text = _("Всего пользователей: {}\nВсего опубликованных постов: {}").format(total_users, active_posts)
         await bot.send_message(msg.from_user.id, text)
 
-@dp.message_handler(Text(equals=[_("Настройки")]))
+@dp.message_handler(Text(equals=[_("Настройки ⚙️")]))
 async def __moderation(msg: Message):
     # if str(msg.from_user.id) in ADMIN_ID:
     await bot.send_message(msg.from_user.id, "⚙️", reply_markup=settings_markup if str(msg.from_user.id) in ADMIN_ID else user_settings_markup)
@@ -77,10 +85,10 @@ async def __moderation(msg: Message):
 @dp.message_handler(Text(equals=[_("Автоматический")]))
 async def __moderation(msg: Message):
     if str(msg.from_user.id) in ADMIN_ID:
-        if msg.text == _("Ручной"):
+        if msg.text == str(_("Ручной")):
             set_work_mode('manual')
             await bot.send_message(msg.from_user.id, "Вы выбрали ручной режим работы ✍️", reply_markup=settings_markup if str(msg.from_user.id) in ADMIN_ID else user_settings_markup)
-        elif msg.text == _("Автоматический"):
+        elif msg.text == str(_("Автоматический")):
             set_work_mode('auto')
             await bot.send_message(msg.from_user.id, "Вы выбрали автоматический режим работы 🤖", reply_markup=settings_markup if str(msg.from_user.id) in ADMIN_ID else user_settings_markup)
         # await bot.send_message(msg.from_user.id, "⚙️", reply_markup=settings_markup if str(msg.from_user.id) in ADMIN_ID else user_settings_markup)
@@ -88,7 +96,9 @@ async def __moderation(msg: Message):
 @dp.message_handler(Text(equals=[_("Режим работы бота")]))
 async def __moderation(msg: Message):
     if str(msg.from_user.id) in ADMIN_ID:
-        redis = redis_client.get('work_mode').decode("utf-8")
+        redis = redis_client.get('work_mode')
+        if redis:
+            redis = redis.decode("utf-8")
         if not redis or redis == 'manual':
             keyboard=[
                 [

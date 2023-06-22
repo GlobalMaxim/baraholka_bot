@@ -31,24 +31,27 @@ choose_new_language = InlineKeyboardMarkup(
         ]
     )
 
-send_tel_number_markup = ReplyKeyboardMarkup(
-    keyboard=[
-        [
-            KeyboardButton(text=_("Отправить номер"), request_contact=True)
-        ]
-    ],
-    resize_keyboard=True
-)
+def get_tel_number(lang):
+    send_tel_number_markup = ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(text=_("Отправить номер", locale=lang), request_contact=True)
+            ]
+        ],
+        resize_keyboard=True
+    )
+    return send_tel_number_markup
 
 user_main_menu_markup = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text=_("Настройки")),
-            KeyboardButton(text=_("Мои объявления"))
+            KeyboardButton(text=_("Создать объявление 🆕"))
         ],
         [
-            KeyboardButton(text=_("Создать объявление"))
+            KeyboardButton(text=_("Настройки ⚙️")),
+            KeyboardButton(text=_("Мои объявления 🖼"))
         ]
+        
     ],
     resize_keyboard=True
 )
@@ -69,7 +72,7 @@ select_article_type_markup = ReplyKeyboardMarkup(
         ],
         resize_keyboard=True
     )
-
+# def get_create_article_default_markup()
 create_article_default_markup = ReplyKeyboardMarkup(
         keyboard=[
             [
@@ -78,6 +81,20 @@ create_article_default_markup = ReplyKeyboardMarkup(
             ],
             [
                 KeyboardButton(text=_("⬅️ Назад")),
+                KeyboardButton(text=_("❌ Отменить"))
+            ]
+        ],
+        resize_keyboard=True
+    )
+
+geoposition_markup = ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(text=_("Отправить местоположение 📍"),request_location=True)
+            ],
+            [
+                KeyboardButton(text=_("⬅️ Назад")),
+                KeyboardButton(text=_("Пропустить ➡️")),
                 KeyboardButton(text=_("❌ Отменить"))
             ]
         ],
