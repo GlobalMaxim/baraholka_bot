@@ -49,7 +49,7 @@ user_main_menu_markup = ReplyKeyboardMarkup(
         ],
         [
             KeyboardButton(text=_("Настройки ⚙️")),
-            KeyboardButton(text=_("Мои объявления 🖼"))
+            KeyboardButton(text=_("Мои объявления"))
         ]
         
     ],

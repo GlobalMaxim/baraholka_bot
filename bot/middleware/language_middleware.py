@@ -19,6 +19,7 @@ class ACLMiddleware(I18nMiddleware):
     # Каждый раз, когда нужно узнать язык пользователя - выполняется эта функция
     async def get_user_locale(self, action, args):
         user = types.User.get_current()
+        # print(user)
         # Возвращаем язык из базы ИЛИ (если не найден) - язык из Телеграма
         return await get_lang(user.id) or user.locale
 

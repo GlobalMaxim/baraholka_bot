@@ -114,6 +114,9 @@ class DBCommands:
         return total_users, active_posts
     
     async def check_article_duplicate(self, article: Article):
-        db_article: Article = await Article.query.where(and_(and_(and_(and_(Article.description == article.description, Article.title == article.title),article.created_at >= (datetime.now() - timedelta(days=1))), Article.type == article.type),Article.user_id == article.user_id)).gino.first()
+        # print(article.created_at)
+        # print(type(article.created_at))
+        # print(datetime.now() - timedelta(days=1))
+        db_article: Article = await Article.query.where(and_(and_(and_(and_(Article.description == article.description, Article.title == article.title),Article.created_at >= (datetime.now() - timedelta(days=1))), Article.type == article.type),Article.user_id == article.user_id)).gino.first()
         if (db_article):
             raise DuplicateArticleException

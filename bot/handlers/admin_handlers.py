@@ -14,7 +14,7 @@ from bot.states.states import CreateArticleStates, RegistrationStates, Moderatio
 from bot.database.database import Article, DBCommands, User
 from bot.loader import dp, bot, _
 from bot.config import ADMIN_ID
-from bot.utils.utils import get_sample_from_article, send_article_to_chanel, set_work_mode, redis_client
+from bot.utils.utils import get_sample_from_article, send_article_to_chanel, send_notification_to_admin_about_new_post, set_last_moderation_time, set_work_mode, redis_client, send_notification_to_admin_about_new_post
 
 db = DBCommands()
 
@@ -22,9 +22,7 @@ db = DBCommands()
 @dp.message_handler(Text(equals=[_("Модерация")]))
 async def __moderation(msg: Message, state: FSMContext):
     if str(msg.from_user.id) in ADMIN_ID:
-        # print(await state.get_state())
         if await state.get_state():
-            # print(1)
             data = await state.get_data()
             article: Article = Article(**json.loads(jsonpickle.decode(data['article']))['__values__'])
             article.is_reviewed = True
@@ -41,9 +39,8 @@ async def __moderation(msg: Message, state: FSMContext):
                     sender_chat_id = mess[0].sender_chat.id
                     mess_id = mess[0].message_id
                 else:
-                    sender_chat_id = mess.sender_chat.id
+                    sender_chat_id = mess.chat.id
                     mess_id = mess.message_id
-                # print(mess)
                 await bot.send_message(user_id, _("Ваше объявление было опубликовано"))
                 await bot.forward_message(user_id, sender_chat_id, mess_id)
             await db.update_article(article)
@@ -65,6 +62,7 @@ async def __moderation(msg: Message, state: FSMContext):
             await ModerationStates.MODERATE.set()
         else:
             await bot.send_message(msg.from_user.id, _("В данный момент нет новых постов."), reply_markup=admin_main_menu_markup)
+            set_last_moderation_time()
             await state.reset_state()
             await state.reset_data()
 
@@ -125,4 +123,5 @@ async def __moderation(msg: Message):
 
 @dp.message_handler(content_types=ContentType.ANY)
 async def __my_articles(msg: Message):
-    await bot.send_message(msg.from_user.id, _("Нет такой команды 🙄"), reply_markup=admin_main_menu_markup if str(msg.from_user.id) in ADMIN_ID else user_main_menu_markup)
+    if msg.chat.type == "private":
+        await bot.send_message(msg.from_user.id, _("Нет такой команды 🙄"), reply_markup=admin_main_menu_markup if str(msg.from_user.id) in ADMIN_ID else user_main_menu_markup)

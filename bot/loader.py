@@ -8,7 +8,7 @@ from bot.middleware.language_middleware import setup_middleware
 
 
 
-storage = RedisStorage2()
+storage = RedisStorage2(db=1)
 bot = Bot(token=TOKEN, parse_mode="HTML")
 dp = Dispatcher(bot=bot, storage=storage)
 i18n = setup_middleware(dp)

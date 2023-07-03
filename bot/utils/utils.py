@@ -1,9 +1,11 @@
+from datetime import datetime, timedelta
 import json
+from typing import List
 from aiogram.types import Message, CallbackQuery, photo_size, ContentTypes, ContentType, ReplyKeyboardRemove, InputMediaPhoto
 
 from bot.loader import dp, bot, _
 from bot.database.database import Article, DBCommands
-from bot.config import CHANEL_ID
+from bot.config import ADMIN_ID, CHANEL_ID
 import redis
 
 
@@ -14,6 +16,9 @@ class BadWordsException(Exception):
     pass
 
 
+
+# redis_client = redis.Redis()
+db = DBCommands()
 
 redis_client = redis.Redis()
 
@@ -41,13 +46,6 @@ def get_sample_from_article(article: Article):
         art_type = article.type + " / zu verschenken ❕"
     elif article.type == str(_("❓ Ищу")):
         art_type = article.type + " / zu suchen ❓"
-    # match article.type:
-    #     case str(_("❗️ Продам")):
-    #         art_type = article.type + " / zu Verkaufen ❗️"
-    #     case str(_("❕ Отдам")):
-    #         art_type = article.type + " / zu verschenken ❕"
-    #     case str(_("❓ Ищу")):
-    #         art_type = article.type + " / zu suchen ❓"
     text_arr.append(f"{art_type}\n")
     if article.title:
         text_arr.append(f"{article.title}\n")
@@ -85,13 +83,17 @@ def distance(a, b):
 
 async def check_article_for_errors(article: Article):
     db = DBCommands()
+    
+    if (not article.title and not article.description):
+        return _("Обьявление заполнено не полностью.\nНужно переделать 🐈")
+    
+    if (not article.mobile_number and not article.username):
+        return _("Вы не указали контактные данные. 🥴\nЗаполните номер телефона или имя пользователя")
+
     try:
         await db.check_article_duplicate(article)
     except:
         return _("Публикация одинаковых постов запрещена.\nПопробуйте по-другому 🤓")
-    
-    if not article.title:
-        return _("Заголовок не может быть пустым, объявление нужно переделать")
     
     words = ['сука', "шлюх", "блят", "пидор", "лох", "бля", "гандон", "бляд", "ёб", "хуй", "доеб", "пидр"]
     text = get_sample_from_article(article)
@@ -144,3 +146,54 @@ async def check_article_for_errors(article: Article):
             if distance(fragment, word) <= len(word)*0.15:
                 return _("В статье нельзя использовать маты 👊")
     return
+
+async def send_notification_to_admin_about_new_post():
+    articles: List[Article] = await db.get_non_reviewed_articles()
+    if articles and len(articles) > 0:
+        with redis.Redis() as redis_client:
+            last_sent_notification = redis_client.get('last_sent_notification')
+            last_moderation = redis_client.get('last_moderation')
+            is_notif_in_2_hrs = int(redis_client.get('is_notificated_in_2_hrs')) == 1
+            # print(is_notif_in_2_hrs)
+        last_sent_notification_date = datetime.strptime(last_sent_notification.decode('utf-8'), "%Y-%m-%d %H:%M:%S") if last_sent_notification else None 
+        last_moderation_date = datetime.strptime(last_moderation.decode('utf-8'), "%Y-%m-%d %H:%M:%S") if last_moderation else None 
+        
+        # set_last_notification_time()
+        # prev_time_2_hrs = datetime.now() - timedelta(hours=2)
+        prev_time_2_hrs = datetime.now() - timedelta(minutes=5)
+        prev_time_24_hrs = datetime.now() - timedelta(hours=24)
+        if last_sent_notification_date and last_sent_notification_date < prev_time_24_hrs:
+            print('1')
+            for admin in ADMIN_ID:
+                await bot.send_message(admin, _("У вас {} новых объявлений.\nЗайдите в модерацию для проверки.").format(len(articles)))
+                set_last_notification_time()
+        elif last_sent_notification_date is None:
+            print('2')
+            for admin in ADMIN_ID:
+                await bot.send_message(admin, _("У вас {} новых объявлений.\nЗайдите в модерацию для проверки.").format(len(articles)))
+                set_last_notification_time()
+        elif last_sent_notification_date < prev_time_2_hrs and not is_notif_in_2_hrs:
+            print('3')
+            for admin in ADMIN_ID:
+                await bot.send_message(admin, _("У вас {} новых объявлений.\nЗайдите в модерацию для проверки.").format(len(articles)))
+                set_last_notification_time()
+            with redis.Redis() as redis_client:
+                redis_client.set('is_notificated_in_2_hrs', int(True))
+        elif last_moderation_date and last_moderation_date > last_sent_notification_date:
+            print('4')
+            for admin in ADMIN_ID:
+                await bot.send_message(admin, _("У вас {} новых объявлений.\nЗайдите в модерацию для проверки.").format(len(articles)))
+                set_last_notification_time()
+        
+
+def set_last_moderation_time():
+    with redis.Redis() as redis_client:
+        cur_datetime = datetime.now()
+        redis_client.set('last_moderation', cur_datetime.strftime("%Y-%m-%d %H:%M:%S"))
+        redis_client.set('is_notificated_in_2_hrs', int(False))
+        # last_moderation = redis_client.get('last_moderation')
+
+def set_last_notification_time():
+    with redis.Redis() as redis_client:
+        cur_datetime = datetime.now()
+        redis_client.set('last_sent_notification', cur_datetime.strftime("%Y-%m-%d %H:%M:%S"))

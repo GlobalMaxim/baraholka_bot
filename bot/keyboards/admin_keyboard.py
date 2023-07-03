@@ -6,7 +6,7 @@ from aiogram.types import Message
 admin_main_menu_markup = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text=_("Мои объявления 🖼")),
+            KeyboardButton(text=_("Мои объявления")),
             KeyboardButton(text=_("Создать объявление 🆕"))
         ],
         [
@@ -59,14 +59,15 @@ work_mode_markup = ReplyKeyboardMarkup(
 )
 
 def get_lang_markup(lang, msg):
+    print(lang, msg)
     admin_main_menu_markup = ReplyKeyboardMarkup(
         keyboard=[
             [
-                KeyboardButton(text=_("Мои объявления",locale=lang)),
-                KeyboardButton(text=_("Создать объявление", locale=lang))
+                KeyboardButton(text=_("Мои объявления", locale=lang)),
+                KeyboardButton(text=_("Создать объявление 🆕", locale=lang))
             ],
             [
-                KeyboardButton(text=_("Настройки", locale=lang)),
+                KeyboardButton(text=_("Настройки ⚙️", locale=lang)),
                 KeyboardButton(text=_("Модерация", locale=lang)),
                 KeyboardButton(text=_("Статистика", locale=lang)),
             ]
@@ -76,11 +77,11 @@ def get_lang_markup(lang, msg):
     user_main_menu_markup = ReplyKeyboardMarkup(
         keyboard=[
             [
-                KeyboardButton(text=_("Настройки", locale=lang)),
+                KeyboardButton(text=_("Настройки ⚙️", locale=lang)),
                 KeyboardButton(text=_("Мои объявления", locale=lang))
             ],
             [
-                KeyboardButton(text=_("Создать объявление", locale=lang))
+                KeyboardButton(text=_("Создать объявление 🆕", locale=lang))
             ]
         ],
         resize_keyboard=True
