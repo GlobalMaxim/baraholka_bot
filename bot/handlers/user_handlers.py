@@ -19,6 +19,7 @@ from bot.states.states import CreateArticleStates, ModerationStates, Registratio
 from bot.database.database import Article, DBCommands, User, DuplicateArticleException
 from bot.loader import dp, bot, _
 from bot.config import ADMIN_ID
+from bot.utils.misc import rate_limit
 from bot.utils.utils import get_sample_from_article, send_article_to_chanel, check_article_for_errors, redis_client, set_last_moderation_time
 
 
@@ -29,7 +30,8 @@ async def register_commands():
     await bot.set_my_commands([
         BotCommand('restart', 'Рестарт')
     ])
-
+    
+@rate_limit(5)
 @dp.message_handler(commands="start")
 @dp.message_handler(commands="restart")
 async def __start(msg: Message, state: FSMContext) -> None:
@@ -308,6 +310,7 @@ async def __accept_article(msg: Message, state: FSMContext):
     await state.reset_state()
     await state.reset_data()
 
+@rate_limit(5)
 @dp.message_handler(Text(equals=[_("Мои объявления")]))
 async def __my_articles(msg: Message):
     articles: List[Article] | None = await db.get_user_articles(msg.from_user.id)

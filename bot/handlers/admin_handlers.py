@@ -14,6 +14,7 @@ from bot.states.states import CreateArticleStates, RegistrationStates, Moderatio
 from bot.database.database import Article, DBCommands, User
 from bot.loader import dp, bot, _
 from bot.config import ADMIN_ID
+from bot.utils.misc import rate_limit
 from bot.utils.utils import get_sample_from_article, send_article_to_chanel, send_notification_to_admin_about_new_post, set_last_moderation_time, set_work_mode, redis_client, send_notification_to_admin_about_new_post
 
 db = DBCommands()
@@ -120,7 +121,7 @@ async def __moderation(msg: Message):
             # set_work_mode('manual')
         # await bot.send_message(msg.from_user.id, "⚙️", reply_markup=settings_markup if str(msg.from_user.id) in ADMIN_ID else user_settings_markup)
 
-
+@rate_limit(5)
 @dp.message_handler(content_types=ContentType.ANY)
 async def __my_articles(msg: Message):
     if msg.chat.type == "private":
