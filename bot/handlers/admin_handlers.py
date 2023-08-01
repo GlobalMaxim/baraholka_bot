@@ -1,8 +1,8 @@
 from datetime import datetime
 from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
-from aiogram.types import Message, CallbackQuery, photo_size, ContentTypes, ContentType, ReplyKeyboardRemove, InputMediaPhoto, KeyboardButton, ReplyKeyboardMarkup
-from aiogram.dispatcher.filters import CommandStart, Text, MediaGroupFilter, Filter
+from aiogram.types import Message, ContentType, InputMediaPhoto, KeyboardButton, ReplyKeyboardMarkup
+from aiogram.dispatcher.filters import Text
 from typing import List
 import json
 
@@ -10,8 +10,8 @@ import jsonpickle
 
 from bot.keyboards.user_keyboards import user_main_menu_markup, user_settings_markup
 from bot.keyboards.admin_keyboard import admin_main_menu_markup, moderate_markup, settings_markup, work_mode_markup
-from bot.states.states import CreateArticleStates, RegistrationStates, ModerationStates
-from bot.database.database import Article, DBCommands, User
+from bot.states.states import ModerationStates
+from bot.database.database import Article, DBCommands
 from bot.loader import dp, bot, _
 from bot.config import ADMIN_ID
 from bot.utils.misc import rate_limit
@@ -76,21 +76,20 @@ async def __moderation(msg: Message, state: FSMContext):
             await state.reset_data()
 
 @dp.message_handler(Text(equals=[_("Статистика")]))
-async def __moderation(msg: Message):
+async def __statistic(msg: Message):
     if str(msg.from_user.id) in ADMIN_ID:
         total_users, active_posts = await db.get_statistic()
         text = _("Всего пользователей: {}\nВсего опубликованных постов: {}").format(total_users, active_posts)
         await bot.send_message(msg.from_user.id, text)
 
 @dp.message_handler(Text(equals=[_("Настройки ⚙️")]))
-async def __moderation(msg: Message):
-    # if str(msg.from_user.id) in ADMIN_ID:
+async def __settings(msg: Message):
     await bot.send_message(msg.from_user.id, "⚙️", reply_markup=settings_markup if str(msg.from_user.id) in ADMIN_ID else user_settings_markup)
 
 
 @dp.message_handler(Text(equals=[_("Ручной")]))
 @dp.message_handler(Text(equals=[_("Автоматический")]))
-async def __moderation(msg: Message):
+async def __choose_mode(msg: Message):
     if str(msg.from_user.id) in ADMIN_ID:
         if msg.text == str(_("Ручной")):
             set_work_mode('manual')
@@ -98,10 +97,9 @@ async def __moderation(msg: Message):
         elif msg.text == str(_("Автоматический")):
             set_work_mode('auto')
             await bot.send_message(msg.from_user.id, "Вы выбрали автоматический режим работы 🤖", reply_markup=settings_markup if str(msg.from_user.id) in ADMIN_ID else user_settings_markup)
-        # await bot.send_message(msg.from_user.id, "⚙️", reply_markup=settings_markup if str(msg.from_user.id) in ADMIN_ID else user_settings_markup)
 
 @dp.message_handler(Text(equals=[_("Режим работы бота")]))
-async def __moderation(msg: Message):
+async def __set_bot_mode(msg: Message):
     if str(msg.from_user.id) in ADMIN_ID:
         redis = redis_client.get('work_mode')
         if redis:
@@ -126,8 +124,7 @@ async def __moderation(msg: Message):
                 ]
             ]
             await bot.send_message(msg.from_user.id, "У вас выбран автоматический режим. Сообщения публикуются без предварительной проверки", reply_markup=ReplyKeyboardMarkup(keyboard=keyboard,resize_keyboard=True))
-            # set_work_mode('manual')
-        # await bot.send_message(msg.from_user.id, "⚙️", reply_markup=settings_markup if str(msg.from_user.id) in ADMIN_ID else user_settings_markup)
+
 
 @rate_limit(5)
 @dp.message_handler(content_types=ContentType.ANY)

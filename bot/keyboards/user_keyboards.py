@@ -1,4 +1,4 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup,InlineKeyboardButton, ReplyKeyboardRemove
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup,InlineKeyboardButton
 from bot.loader import _
 
 choose_language = InlineKeyboardMarkup(
@@ -72,7 +72,7 @@ select_article_type_markup = ReplyKeyboardMarkup(
         ],
         resize_keyboard=True
     )
-# def get_create_article_default_markup()
+
 create_article_default_markup = ReplyKeyboardMarkup(
         keyboard=[
             [

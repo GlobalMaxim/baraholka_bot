@@ -1,7 +1,6 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup,InlineKeyboardButton, ReplyKeyboardRemove
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from bot.config import ADMIN_ID
 from bot.loader import _
-from aiogram.types import Message
 
 admin_main_menu_markup = ReplyKeyboardMarkup(
     keyboard=[

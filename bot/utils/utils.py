@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import json
 from typing import List
-from aiogram.types import Message, CallbackQuery, photo_size, ContentTypes, ContentType, ReplyKeyboardRemove, InputMediaPhoto
+from aiogram.types import InputMediaPhoto
 
 from bot.loader import dp, bot, _
 from bot.database.database import Article, DBCommands
@@ -23,8 +23,6 @@ formatter = logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-
-# redis_client = redis.Redis()
 db = DBCommands()
 
 redis_client = redis.Redis()
@@ -70,7 +68,6 @@ def get_sample_from_article(article: Article):
         text_arr.append(f"{_('Местоположение: ')}{article.location}\n")
     if article.mobile_number:
         text_arr.append(f"{_('Номер: ')}{article.mobile_number}\n")
-    # print(article.username)
     if article.username and article.username != "@None":
         text_arr.append(article.username)
     text = "\n".join(text_arr)
@@ -168,12 +165,8 @@ async def send_notification_to_admin_about_new_post():
                 last_sent_notification = redis_client.get('last_sent_notification')
                 last_moderation = redis_client.get('last_moderation')
                 is_notif_in_2_hrs = int(redis_client.get('is_notificated_in_2_hrs')) == 1
-                # print(is_notif_in_2_hrs)
             last_sent_notification_date = datetime.strptime(last_sent_notification.decode('utf-8'), "%Y-%m-%d %H:%M:%S") if last_sent_notification else None 
             last_moderation_date = datetime.strptime(last_moderation.decode('utf-8'), "%Y-%m-%d %H:%M:%S") if last_moderation else None 
-            
-            # set_last_notification_time()
-            # prev_time_2_hrs = datetime.now() - timedelta(hours=2)
             prev_time_2_hrs = datetime.now() - timedelta(minutes=5)
             prev_time_24_hrs = datetime.now() - timedelta(hours=24)
             if last_sent_notification_date and last_sent_notification_date < prev_time_24_hrs:

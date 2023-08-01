@@ -1,8 +1,6 @@
 from aiogram import Bot, Dispatcher, executor
-from bot.config import TOKEN, ADMIN_ID
-# from bot.handlers.user_handlers import register_user_handlers
+from bot.config import TOKEN
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
-# from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from bot.middleware.language_middleware import setup_middleware
 
