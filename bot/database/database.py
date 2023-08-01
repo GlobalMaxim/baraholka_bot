@@ -75,56 +75,86 @@ class Article(db.Model):
     
 class DBCommands:
     async def get_user(self, user_id):
-        user = await User.query.where(User.user_id == user_id).gino.first()
-        return user
+        try:
+            user = await User.query.where(User.user_id == user_id).gino.first()
+            return user
+        except Exception:
+            logger.exception('Get user')
     
     async def add_new_user(self):
-        cur_date = datetime.now()
-        user = types.User.get_current()
-        old_user = await self.get_user(user.id)
-        if old_user:
-            return old_user
-        new_user = User()
-        new_user.user_id = user.id
-        new_user.username = user.username
-        new_user.full_name = user.full_name
-        new_user.created_at = cur_date
-        await new_user.create()
-        return new_user
+        try:
+            cur_date = datetime.now()
+            user = types.User.get_current()
+            old_user = await self.get_user(user.id)
+            if old_user:
+                return old_user
+            new_user = User()
+            new_user.user_id = user.id
+            new_user.username = user.username
+            new_user.full_name = user.full_name
+            new_user.created_at = cur_date
+            await new_user.create()
+            return new_user
+        except Exception:
+            logger.exception('Add new user')
     
     async def set_language(self, language):
-        user_id = types.User.get_current().id
-        user = await self.get_user(user_id)
-        await user.update(language=language).apply()
-        return user
+        try:
+            user_id = types.User.get_current().id
+            user = await self.get_user(user_id)
+            await user.update(language=language).apply()
+            return user
+        except Exception:
+            logger.exception('Set language')
 
     async def set_mobile(self, number):
-        user_id = types.User.get_current().id
-        user = await self.get_user(user_id)
-        await user.update(mobile=number).apply()
+        try:
+            user_id = types.User.get_current().id
+            user = await self.get_user(user_id)
+            await user.update(mobile=number).apply()
+        except Exception:
+            logger.exception('Set mobile')
 
     async def delete_article(self, id):
-        aricle = await Article.get(id)
-        await aricle.delete()
+        try:
+            aricle = await Article.get(id)
+            await aricle.delete()
+        except Exception:
+            logger.exception('Delete article')
     
     async def get_non_reviewed_articles(self):
-        articles = await Article.query.where(Article.is_reviewed == False).gino.all()
-        return articles
+        try:
+            articles = await Article.query.where(Article.is_reviewed == False).gino.all()
+            return articles
+        except Exception:
+            logger.exception('Get not reviewed articles')
     
     async def get_user_articles(self, user_id):
-        articles = await Article.query.where(Article.user_id == user_id and Article.is_approved == True).order_by(Article.created_at.desc()).limit(10).gino.all()
-        return articles
+        try:
+            articles = await Article.query.where(Article.user_id == user_id and Article.is_approved == True).order_by(Article.created_at.desc()).limit(10).gino.all()
+            return articles
+        except Exception:
+            logger.exception('Get user articles')
     
     async def update_article(self, new_article: Article):
-        article: Article = await Article.query.where(Article.id == new_article.id).gino.first()
-        await article.update(is_approved = new_article.is_approved, is_reviewed = new_article.is_reviewed, reviewed_at = datetime.now()).apply()
+        try:
+            article: Article = await Article.query.where(Article.id == new_article.id).gino.first()
+            await article.update(is_approved = new_article.is_approved, is_reviewed = new_article.is_reviewed, reviewed_at = datetime.now()).apply()
+        except Exception:
+            logger.exception('Update article')
     
     async def get_statistic(self):
-        total_users = await db.func.count(User.id).gino.scalar()
-        active_posts = await (db.select([db.func.count()]).where(Article.is_approved == True)).gino.scalar()
-        return total_users, active_posts
+        try:
+            total_users = await db.func.count(User.id).gino.scalar()
+            active_posts = await (db.select([db.func.count()]).where(Article.is_approved == True)).gino.scalar()
+            return total_users, active_posts
+        except Exception:
+            logger.exception('Get statistic')
     
     async def check_article_duplicate(self, article: Article):
-        db_article: Article = await Article.query.where(and_(and_(and_(and_(Article.description == article.description, Article.title == article.title),Article.created_at >= (datetime.now() - timedelta(days=1))), Article.type == article.type),Article.user_id == article.user_id)).gino.first()
-        if (db_article):
-            raise DuplicateArticleException
+        try:
+            db_article: Article = await Article.query.where(and_(and_(and_(and_(Article.description == article.description, Article.title == article.title),Article.created_at >= (datetime.now() - timedelta(days=1))), Article.type == article.type),Article.user_id == article.user_id)).gino.first()
+            if (db_article):
+                raise DuplicateArticleException
+        except Exception:
+            logger.exception('Check duplicates')

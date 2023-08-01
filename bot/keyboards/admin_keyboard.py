@@ -58,7 +58,7 @@ work_mode_markup = ReplyKeyboardMarkup(
 )
 
 def get_lang_markup(lang, msg):
-    print(lang, msg)
+    # print(lang, msg)
     admin_main_menu_markup = ReplyKeyboardMarkup(
         keyboard=[
             [

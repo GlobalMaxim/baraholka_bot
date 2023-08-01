@@ -1,6 +1,7 @@
 venv/*
 docker
 __pycache__
+logs
 .vscode
 .env
 .DS_Store
