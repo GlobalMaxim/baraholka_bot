@@ -21,60 +21,64 @@ msgstr ""
 #: bot/handlers/admin_handlers.py:22 bot/keyboards/admin_keyboard.py:14
 #: bot/keyboards/admin_keyboard.py:71
 msgid "Модерация"
-msgstr ""
+msgstr "Moderat"
 
 #: bot/handlers/admin_handlers.py:33
 msgid "Ваше объявление было отклонено"
-msgstr ""
+msgstr "Ihre Anzeige wurde abgelehnt"
 
 #: bot/handlers/admin_handlers.py:44
 msgid "Ваше объявление было опубликовано"
-msgstr ""
+msgstr "Ihre Anzeige wurde veröffentlicht"
 
 #: bot/handlers/admin_handlers.py:53 bot/utils/utils.py:31
 msgid ""
 "Лот № {}\n"
 "\n"
 msgstr ""
+"Los-Nr. {}\n"
+"\n"
 
 #: bot/handlers/admin_handlers.py:58 bot/handlers/admin_handlers.py:61
 msgid "Опубликовать?"
-msgstr ""
+msgstr "Veröffentlichen?"
 
 #: bot/handlers/admin_handlers.py:64
 msgid "В данный момент нет новых постов."
-msgstr ""
+msgstr "Derzeit gibt es keine neuen Veröffentlichungen."
 
 #: bot/handlers/admin_handlers.py:69 bot/keyboards/admin_keyboard.py:15
 #: bot/keyboards/admin_keyboard.py:72
 msgid "Статистика"
-msgstr ""
+msgstr "Statistik"
 
 #: bot/handlers/admin_handlers.py:73
 msgid ""
 "Всего пользователей: {}\n"
 "Всего опубликованных постов: {}"
 msgstr ""
+"Gesamtzahl der Benutzer: {}\n"
+"Insgesamt veröffentlichte Artikel: {}"
 
 #: bot/handlers/admin_handlers.py:76 bot/keyboards/admin_keyboard.py:13
 #: bot/keyboards/admin_keyboard.py:70 bot/keyboards/admin_keyboard.py:80
 #: bot/keyboards/user_keyboards.py:51
 msgid "Настройки ⚙️"
-msgstr ""
+msgstr "Einstellungen ⚙️"
 
 #: bot/handlers/admin_handlers.py:82 bot/handlers/admin_handlers.py:86
 #: bot/handlers/admin_handlers.py:113 bot/keyboards/admin_keyboard.py:51
 msgid "Ручной"
-msgstr ""
+msgstr "Handbetrieb"
 
 #: bot/handlers/admin_handlers.py:83 bot/handlers/admin_handlers.py:89
 #: bot/handlers/admin_handlers.py:103 bot/keyboards/admin_keyboard.py:52
 msgid "Автоматический"
-msgstr ""
+msgstr "Automatisch"
 
 #: bot/handlers/admin_handlers.py:94 bot/keyboards/admin_keyboard.py:39
 msgid "Режим работы бота"
-msgstr ""
+msgstr "Wie der Bot funktioniert"
 
 #: bot/handlers/admin_handlers.py:106 bot/handlers/admin_handlers.py:116
 #: bot/handlers/user_handlers.py:90 bot/keyboards/admin_keyboard.py:28
@@ -82,43 +86,43 @@ msgstr ""
 #: bot/keyboards/user_keyboards.py:69 bot/keyboards/user_keyboards.py:84
 #: bot/keyboards/user_keyboards.py:98 bot/keyboards/user_keyboards.py:121
 msgid "❌ Отменить"
-msgstr ""
+msgstr "❌ Abbrechen"
 
 #: bot/handlers/admin_handlers.py:127
 msgid "Нет такой команды 🙄"
-msgstr ""
+msgstr "Einen solchen Befehl gibt es nicht 🙄"
 
 #: bot/handlers/user_handlers.py:53
 msgid "Ваш язык был изменен"
-msgstr ""
+msgstr "Ihre Sprache wurde geändert"
 
 #: bot/handlers/user_handlers.py:55
 msgid "Выберите следущее действие"
-msgstr ""
+msgstr "Wählen Sie die folgende Aktion"
 
 #: bot/handlers/user_handlers.py:61
 msgid "Добро пожаловать в главное меню!"
-msgstr ""
+msgstr "Willkommen im Hauptmenü!"
 
 #: bot/handlers/user_handlers.py:63
 msgid "Отправьте свой номер телефона"
-msgstr ""
+msgstr "Senden Sie Ihre Rufnummer"
 
 #: bot/handlers/user_handlers.py:76
 msgid "Неправильный формат номера, попробуй еще раз"
-msgstr ""
+msgstr "Falsches Zahlenformat, versuchen Sie es erneut"
 
 #: bot/handlers/user_handlers.py:84
 msgid "Номер телефона был изменен"
-msgstr ""
+msgstr "Die Rufnummer wurde geändert"
 
 #: bot/handlers/user_handlers.py:86
 msgid "Вы в главном меню! 🫡"
-msgstr ""
+msgstr "Sie befinden sich im Hauptmenü! 🫡"
 
 #: bot/handlers/user_handlers.py:98
 msgid "Вы в главном меню!"
-msgstr ""
+msgstr "Sie befinden sich im Hauptmenü!"
 
 #: bot/handlers/user_handlers.py:102 bot/handlers/user_handlers.py:108
 #: bot/handlers/user_handlers.py:111 bot/handlers/user_handlers.py:114
@@ -130,36 +134,36 @@ msgstr ""
 #: bot/handlers/user_handlers.py:217 bot/handlers/user_handlers.py:236
 #: bot/keyboards/user_keyboards.py:83 bot/keyboards/user_keyboards.py:96
 msgid "⬅️ Назад"
-msgstr ""
+msgstr "⬅️ Zurück"
 
 #: bot/handlers/user_handlers.py:103 bot/keyboards/admin_keyboard.py:10
 #: bot/keyboards/admin_keyboard.py:67 bot/keyboards/admin_keyboard.py:84
 #: bot/keyboards/user_keyboards.py:48
 msgid "Создать объявление 🆕"
-msgstr ""
+msgstr "Erstellen Sie eine Ankündigung 🆕"
 
 #: bot/handlers/user_handlers.py:105
 msgid "Выберите категрию"
-msgstr ""
+msgstr "Wählen Sie eine Kategorie"
 
 #: bot/handlers/user_handlers.py:111 bot/keyboards/user_keyboards.py:66
 #: bot/utils/utils.py:47
 msgid "❓ Ищу"
-msgstr ""
+msgstr "❓ Suche"
 
 #: bot/handlers/user_handlers.py:111 bot/keyboards/user_keyboards.py:65
 #: bot/utils/utils.py:45
 msgid "❕ Отдам"
-msgstr ""
+msgstr "❕ Verschenken"
 
 #: bot/handlers/user_handlers.py:111 bot/handlers/user_handlers.py:142
 #: bot/keyboards/user_keyboards.py:62 bot/utils/utils.py:43
 msgid "❗️ Продам"
-msgstr ""
+msgstr "❗️ Verkaufen"
 
 #: bot/handlers/user_handlers.py:121
 msgid "Введите название товара"
-msgstr ""
+msgstr "Produktname eingeben"
 
 #: bot/handlers/user_handlers.py:131 bot/handlers/user_handlers.py:141
 #: bot/handlers/user_handlers.py:156 bot/handlers/user_handlers.py:163
@@ -167,109 +171,119 @@ msgstr ""
 #: bot/handlers/user_handlers.py:236 bot/keyboards/user_keyboards.py:79
 #: bot/keyboards/user_keyboards.py:97
 msgid "Пропустить ➡️"
-msgstr ""
+msgstr "Überspringen ➡️"
 
 #: bot/handlers/user_handlers.py:132
 msgid "Введите описание товара"
-msgstr ""
+msgstr "Beschreibung des Produkts eingeben"
 
 #: bot/handlers/user_handlers.py:143
 msgid "Введите цену товара"
-msgstr ""
+msgstr "Produktpreis eingeben"
 
 #: bot/handlers/user_handlers.py:146 bot/handlers/user_handlers.py:157
 msgid "Добавьте фото"
-msgstr ""
+msgstr "Foto hinzufügen"
 
 #: bot/handlers/user_handlers.py:192
 msgid "Укажите населенный пункт и индекс"
-msgstr ""
+msgstr "Stadt und Postleitzahl eingeben"
 
 #: bot/handlers/user_handlers.py:205
 msgid ""
 "Нажмите 'Пропустить', что б автоматически указать логин вашего профиля: "
 "@{}, или введите его вручную"
 msgstr ""
+"Klicken Sie auf 'Überspringen', um Ihren Profilbenutzernamen automatisch einzugeben:"
+"@{}, oder geben Sie ihn manuell ein"
 
 #: bot/handlers/user_handlers.py:207
 msgid ""
 "Введите логин телеграм (начинается с @).\n"
 "Нажмите 'Пропустить', что б не указывать его"
 msgstr ""
+"Geben Sie Ihren Telegram-Benutzernamen ein (beginnt mit @)\n"
+"Drücken Sie 'Überspringen', um die Eingabe zu vermeiden."
 
 #: bot/handlers/user_handlers.py:224
 msgid ""
 "Введите номер телефона.\n"
 "Нажмите 'Пропустить', что б использовать указанный вами номер: {}"
 msgstr ""
+"Geben Sie die Telefonnummer ein.\n"
+"Drücken Sie 'Überspringen', um die eingegebene Nummer zu verwenden: {}"
 
 #: bot/handlers/user_handlers.py:226
 msgid ""
 "Введите номер телефона (начинается с +).\n"
 "Нажмите 'Пропустить', что б не указывать его"
 msgstr ""
+"Rufnummer eingeben (beginnt mit +)\n"
+"Drücken Sie 'Überspringen', um die Eingabe zu vermeiden."
 
 #: bot/handlers/user_handlers.py:239
 msgid "Готово! Вы можете посмотреть объявление:"
-msgstr ""
+msgstr "Erledigt! Sie können die Anzeige sehen:"
 
 #: bot/handlers/user_handlers.py:253
 msgid "Подтвердить? (Да/Нет)"
-msgstr ""
+msgstr "Bestätigen Sie? (Ja/Nein)"
 
 #: bot/handlers/user_handlers.py:260 bot/keyboards/user_keyboards.py:107
 msgid "Да"
-msgstr ""
+msgstr "Ja"
 
 #: bot/handlers/user_handlers.py:269 bot/handlers/user_handlers.py:289
 msgid "Ваш пост опубликован в канале"
-msgstr ""
+msgstr "Ihre Anzeige wurde veröffentlicht"
 
 #: bot/handlers/user_handlers.py:302
 msgid ""
 "Ваш пост отправлен на модерацию.\n"
 "Как только он будет проверен Администратором, вы получите уведомление"
 msgstr ""
+"Ваше сообщение было отправлено на модерацию"
+"Как только оно будет рассмотрено администратором, вы получите уведомление."
 
 #: bot/handlers/user_handlers.py:306 bot/keyboards/user_keyboards.py:108
 msgid "Нет"
-msgstr ""
+msgstr "Nein"
 
 #: bot/handlers/user_handlers.py:307
 msgid "Создание поста отменено"
-msgstr ""
+msgstr "Die Erstellung der Ankündigung wurde gestrichen"
 
 #: bot/handlers/user_handlers.py:311 bot/keyboards/admin_keyboard.py:9
 #: bot/keyboards/admin_keyboard.py:66 bot/keyboards/admin_keyboard.py:81
 #: bot/keyboards/user_keyboards.py:52
 msgid "Мои объявления"
-msgstr ""
+msgstr "Meine Anzeigen"
 
 #: bot/handlers/user_handlers.py:319
 msgid "У вас нет активных объявлений 🥺"
-msgstr ""
+msgstr "Sie haben keine aktiven Ankündigungen 🥺."
 
 #: bot/handlers/user_handlers.py:321 bot/keyboards/admin_keyboard.py:37
 #: bot/keyboards/user_keyboards.py:117
 msgid "Язык"
-msgstr ""
+msgstr "Sprache"
 
 #: bot/handlers/user_handlers.py:324
 msgid "Выбери язык"
-msgstr ""
+msgstr "Sprache auswählen"
 
 #: bot/handlers/user_handlers.py:327 bot/keyboards/admin_keyboard.py:38
 #: bot/keyboards/user_keyboards.py:118
 msgid "Номер телефона"
-msgstr ""
+msgstr "Rufnummer"
 
 #: bot/handlers/user_handlers.py:329
 msgid "Введите номер"
-msgstr ""
+msgstr "Nummer eingeben"
 
 #: bot/keyboards/user_keyboards.py:38
 msgid "Отправить номер"
-msgstr ""
+msgstr "Nummer senden"
 
 #: bot/keyboards/user_keyboards.py:93
 msgid "Отправить местоположение 📍"
@@ -277,28 +291,34 @@ msgstr ""
 
 #: bot/middleware/throttling_middleware.py:45
 msgid "Сильно много запросов, попробуйте через 5 секунд!"
-msgstr ""
+msgstr "Viele Anfragen, versuchen Sie es in 5 Sekunden!"
 
 #: bot/utils/utils.py:88
 msgid ""
 "Обьявление заполнено не полностью.\n"
 "Нужно переделать 🐈"
 msgstr ""
+"Die Anzeige ist unvollständig.\n"
+"Muss neu gemacht werden 🐈"
 
 #: bot/utils/utils.py:91
 msgid ""
 "Вы не указали контактные данные. 🥴\n"
 "Заполните номер телефона или имя пользователя"
 msgstr ""
+"Sie haben keine Kontaktinformationen angegeben. 🥴\n"
+"Geben Sie eine Telefonnummer oder einen Benutzernamen ein"
 
 #: bot/utils/utils.py:96
 msgid ""
 "Публикация одинаковых постов запрещена.\n"
 "Попробуйте по-другому 🤓"
 msgstr ""
+"Es ist verboten, die gleichen Beiträge zu posten"
+"Versuchen Sie es anders 🤓"
 
 #: bot/utils/utils.py:147
-msgid "В статье нельзя использовать маты 👊"
+msgid "Schimpfwörter sollten in der Werbung nicht verwendet werden 👊"
 msgstr ""
 
 #: bot/utils/utils.py:168 bot/utils/utils.py:173 bot/utils/utils.py:178
@@ -307,3 +327,5 @@ msgid ""
 "У вас {} новых объявлений.\n"
 "Зайдите в модерацию для проверки."
 msgstr ""
+"Sie haben {} neue Angebote. {n}"
+"Zur Überprüfung zur Moderation gehen"
