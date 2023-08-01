@@ -16,8 +16,16 @@ from bot.loader import dp, bot, _
 from bot.config import ADMIN_ID
 from bot.utils.misc import rate_limit
 from bot.utils.utils import get_sample_from_article, send_article_to_chanel, send_notification_to_admin_about_new_post, set_last_moderation_time, set_work_mode, redis_client, send_notification_to_admin_about_new_post
+import logging
 
 db = DBCommands()
+
+logger = logging.getLogger('admin_handler')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(filename="bot/logs/admin_handler.log")
+formatter = logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 @dp.message_handler(state=ModerationStates.MODERATE)
 @dp.message_handler(Text(equals=[_("Модерация")]))

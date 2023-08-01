@@ -8,6 +8,14 @@ from sqlalchemy import (Column, Integer, BigInteger, String,
 from sqlalchemy import sql
 from aiogram import types, Bot
 import json
+import logging
+
+logger = logging.getLogger('utils')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(filename="bot/logs/database.log")
+formatter = logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 db = Gino()
 
@@ -16,10 +24,13 @@ class DuplicateArticleException(Exception):
 
 async def create_db():
     # Устанавливаем связь с базой данных
-    await db.set_bind(MYSQL_URI)
-    db.gino: GinoSchemaVisitor
-    await db.gino.create_all()
-    print('Database connected successfully')
+    try:
+        await db.set_bind(MYSQL_URI)
+        db.gino: GinoSchemaVisitor
+        await db.gino.create_all()
+        print('Database connected successfully')
+    except Exception:
+        logger.exception('Create database exception')
 
 class User(db.Model):
     __tablename__ = 'users'

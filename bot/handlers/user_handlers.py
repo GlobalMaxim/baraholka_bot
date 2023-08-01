@@ -21,7 +21,15 @@ from bot.loader import dp, bot, _
 from bot.config import ADMIN_ID
 from bot.utils.misc import rate_limit
 from bot.utils.utils import get_sample_from_article, send_article_to_chanel, check_article_for_errors, redis_client, set_last_moderation_time
+import logging
 
+
+logger = logging.getLogger('user_handler')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(filename="bot/logs/user_handler.log")
+formatter = logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 db = DBCommands()
